@@ -6,6 +6,8 @@ on:
   workflow_dispatch:
   push:
     branches: [ main ]
+    paths-ignore:
+      - 'K8S/**'
 
 jobs:
   build-and-push:
@@ -69,7 +71,6 @@ jobs:
           git push origin "v$VERSION"
 
 
-
       - name: Create GitHub Release
         uses: actions/create-release@v1
         env:
@@ -99,3 +100,15 @@ jobs:
 
           # or
           # tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.APP_NAME }}:${{ github.run_number }}
+
+      - name: Update K8S deployment
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          sed -i "s|image: akyna/dan_it_final_project:.*|image: akyna/dan_it_final_project:${{ env.VERSION }}|g" K8S/deployment.yaml
+
+          git add K8S/deployment.yaml
+          git commit -m "Update deployment image to version ${{ env.VERSION }}"
+          git push https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
