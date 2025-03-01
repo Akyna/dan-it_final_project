@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def health_check():
-    return "Test ArgoCD - attempt 1", 200
+    return "Test ArgoCD - attempt 2", 200
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
